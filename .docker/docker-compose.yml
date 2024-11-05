@@ -1,0 +1,25 @@
+services:
+  prosper_db:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: prosperdb
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+
+  prosper_app:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - prosper_db
+    environment:
+      DATABASE_URL: postgresql+psycopg://app_user:app_password@fastzero_database:5432/app_db
+
+volumes:
+  pgdata:
