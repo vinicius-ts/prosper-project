@@ -1,19 +1,16 @@
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from typing import AsyncGenerator
 
-SQLACHEMY_DATABASE_URL = "postgresql://root:root@prosper_db:5432/prosperdb"
+SQLACHEMY_DATABASE_URL = "postgresql+asyncpg://root:root@prosper_db:5432/prosperdb"
 
-engine = create_engine(SQLACHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(SQLACHEMY_DATABASE_URL, echo=True)
+async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 Base = declarative_base()
 
-def get_session():
-    session = SessionLocal()
-    try:
+
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
         yield session
-    finally:
-        session.close()
-
-
